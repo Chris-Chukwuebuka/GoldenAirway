@@ -4,7 +4,7 @@ const app = require('./app');
 
 const httpServer = http.createServer(app);
 const dbconnect = require('./helpers/dbconfig');
-const {PORT} = require('./config/index');
+const {PORT} = require('./config/index') || 4000  //importing the PORT from config/index.js;
 
 
 const startServer = async () => {
