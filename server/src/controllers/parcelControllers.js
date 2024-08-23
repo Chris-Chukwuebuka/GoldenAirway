@@ -22,12 +22,7 @@ const createParcel = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Check for existing parcel with the same recipient email
-    const existingParcel = await Parcel.findOne({ recipientEmail: email });
-    if (existingParcel) {
-      console.log("Error: Parcel with this email already exists");
-      return res.status(409).json({ error: "Parcel with this email already exists" });
-    }
+    
 
     const trackingNumber = generateTrackingNumber();
     console.log("Generated tracking number:", trackingNumber);

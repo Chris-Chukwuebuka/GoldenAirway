@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Dashboard from './Components/Dashboard';
-import CreateParcel from './Components/CreateParcel';
+import CreateParcel from './Components/CreateParcels';
 import EditParcel from './Components/UpdateParcel';
 import TrackParcel from './Components/TrackParcel';
 import LandingPage from './Components/LandingPage';

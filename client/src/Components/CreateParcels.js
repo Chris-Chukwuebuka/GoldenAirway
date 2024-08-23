@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { createParcel } from '../lib/redux/parcelSlice';
 import { useNavigate } from 'react-router-dom';
 
-const CreateParcel = () => {
+const CreateParcels = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
@@ -140,4 +140,4 @@ const CreateParcel = () => {
   );
 };
 
-export default CreateParcel;
+export default CreateParcels;

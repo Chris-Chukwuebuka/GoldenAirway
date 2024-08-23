@@ -1,56 +1,51 @@
+// parcelSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from '../apis/api'; // Adjust the path as necessary
 
-// Fetch all parcels
 export const fetchParcels = createAsyncThunk(
   "parcels/fetchParcels",
   async () => {
-    const response = await axios.get("/api/parcels");
+    const response = await api.get("/parcels");
     return response.data;
   }
 );
 
-// Create a new parcel
 export const createParcel = createAsyncThunk(
   "parcels/createParcel",
   async (parcelData) => {
-    const response = await axios.post("/api/parcels", parcelData);
+    const response = await api.post("/parcels", parcelData);
     return response.data;
   }
 );
 
-// Update parcel status
 export const updateParcelStatus = createAsyncThunk(
   "parcels/updateParcelStatus",
   async ({ id, statusData }) => {
-    const response = await axios.put(`/api/parcels/${id}/status`, statusData);
+    const response = await api.put(`/parcels/${id}/status`, statusData);
     return response.data;
   }
 );
 
-// Fetch parcel by tracking number
 export const fetchParcelByTrackingNumber = createAsyncThunk(
   "parcels/fetchParcelByTrackingNumber",
   async (trackingNumber) => {
-    const response = await axios.get(`/api/parcels/${trackingNumber}`);
+    const response = await api.get(`/parcels/${trackingNumber}`);
     return response.data;
   }
 );
 
-// Fetch parcel by ID
 export const fetchParcelById = createAsyncThunk(
   "parcels/fetchParcelById",
   async (id) => {
-    const response = await axios.get(`/api/parcels/id/${id}`); // Adjust the endpoint if necessary
+    const response = await api.get(`/parcels/id/${id}`);
     return response.data;
   }
 );
 
-// Update parcel details
 export const updateParcel = createAsyncThunk(
   "parcels/updateParcel",
   async ({ id, updateData }) => {
-    const response = await axios.put(`/api/parcels/${id}`, updateData);
+    const response = await api.put(`/parcels/${id}`, updateData);
     return response.data;
   }
 );
