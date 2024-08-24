@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const parcelSchema = new mongoose.Schema({
   trackingNumber: { type: String, required: true, unique: true },
-  recipientEmail: { type: String, required: true, unique: true },
+  email: { type: String, required: true,  },
   status: [{
     status: String,
     timestamp: { type: Date, default: Date.now },

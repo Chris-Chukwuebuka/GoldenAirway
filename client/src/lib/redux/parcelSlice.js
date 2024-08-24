@@ -1,11 +1,10 @@
-// parcelSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from '../apis/api'; // Adjust the path as necessary
 
 export const fetchParcels = createAsyncThunk(
   "parcels/fetchParcels",
   async () => {
-    const response = await api.get("/parcels");
+    const response = await api.get("/admin/parcels");
     return response.data;
   }
 );
@@ -13,7 +12,7 @@ export const fetchParcels = createAsyncThunk(
 export const createParcel = createAsyncThunk(
   "parcels/createParcel",
   async (parcelData) => {
-    const response = await api.post("/parcels", parcelData);
+    const response = await api.post("/admin/parcels", parcelData);
     return response.data;
   }
 );
@@ -21,7 +20,7 @@ export const createParcel = createAsyncThunk(
 export const updateParcelStatus = createAsyncThunk(
   "parcels/updateParcelStatus",
   async ({ id, statusData }) => {
-    const response = await api.put(`/parcels/${id}/status`, statusData);
+    const response = await api.put(`/admin/parcels/${id}/status`, statusData);
     return response.data;
   }
 );
@@ -37,7 +36,7 @@ export const fetchParcelByTrackingNumber = createAsyncThunk(
 export const fetchParcelById = createAsyncThunk(
   "parcels/fetchParcelById",
   async (id) => {
-    const response = await api.get(`/parcels/id/${id}`);
+    const response = await api.get(`/admin/parcels/id/${id}`);
     return response.data;
   }
 );
@@ -45,7 +44,7 @@ export const fetchParcelById = createAsyncThunk(
 export const updateParcel = createAsyncThunk(
   "parcels/updateParcel",
   async ({ id, updateData }) => {
-    const response = await api.put(`/parcels/${id}`, updateData);
+    const response = await api.put(`/admin/parcels/${id}`, updateData);
     return response.data;
   }
 );

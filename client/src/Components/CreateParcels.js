@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { createParcel } from '../lib/redux/parcelSlice';
+import useParcel from '../hooks/useParcel';
 import { useNavigate } from 'react-router-dom';
 
-const CreateParcels = () => {
-  const dispatch = useDispatch();
+const CreateParcel = () => {
+  const { createNewParcel, loading, error } = useParcel();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
-    trackingNumber: '',
-    recipientEmail: '',
-    mobileNumber: '',
+    email: '',
+    location: '',
     quantity: '',
     weight: '',
     length: '',
@@ -23,80 +21,65 @@ const CreateParcels = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newParcel = {
-      trackingNumber: formData.trackingNumber,
-      recipientEmail: formData.recipientEmail,
-      mobileNumber: formData.mobileNumber,
-      quantity: Number(formData.quantity),
-      weight: Number(formData.weight),
-      dimensions: {
-        length: Number(formData.length),
-        width: Number(formData.width),
-        height: Number(formData.height),
-      },
-    };
-    dispatch(createParcel(newParcel));
-    navigate('/dashboard');
+    try {
+      await createNewParcel(formData);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Failed to create parcel:', err);
+    }
   };
 
   return (
-    <div className="container">
-      <h1>Create New Parcel</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Create New Parcel</h1>
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 bg-white rounded shadow">
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Tracking Number</label>
-          <input
-            type="text"
-            name="trackingNumber"
-            value={formData.trackingNumber}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Recipient Email</label>
+          <label htmlFor="email" className="block text-sm font-bold mb-2">Recipient Email</label>
           <input
             type="email"
-            name="recipientEmail"
-            value={formData.recipientEmail}
+            id="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Mobile Number</label>
+          <label htmlFor="location" className="block text-sm font-bold mb-2">Location</label>
           <input
             type="text"
-            name="mobileNumber"
-            value={formData.mobileNumber}
+            id="location"
+            name="location"
+            value={formData.location}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Quantity</label>
+          <label htmlFor="quantity" className="block text-sm font-bold mb-2">Quantity</label>
           <input
             type="number"
+            id="quantity"
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Weight (kg)</label>
+          <label htmlFor="weight" className="block text-sm font-bold mb-2">Weight (kg)</label>
           <input
             type="number"
+            id="weight"
             name="weight"
             value={formData.weight}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             required
           />
         </div>
@@ -105,39 +88,43 @@ const CreateParcels = () => {
           <div className="flex space-x-2">
             <input
               type="number"
+              id="length"
               name="length"
               placeholder="Length"
               value={formData.length}
               onChange={handleChange}
-              className="w-1/3 p-2 border rounded"
+              className="w-1/3 p-2 border border-gray-300 rounded"
               required
             />
             <input
               type="number"
+              id="width"
               name="width"
               placeholder="Width"
               value={formData.width}
               onChange={handleChange}
-              className="w-1/3 p-2 border rounded"
+              className="w-1/3 p-2 border border-gray-300 rounded"
               required
             />
             <input
               type="number"
+              id="height"
               name="height"
               placeholder="Height"
               value={formData.height}
               onChange={handleChange}
-              className="w-1/3 p-2 border rounded"
+              className="w-1/3 p-2 border border-gray-300 rounded"
               required
             />
           </div>
         </div>
         <button type="submit" className="w-full p-2 bg-green-500 text-white rounded">
-          Create Parcel
+          {loading ? 'Creating...' : 'Create Parcel'}
         </button>
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </form>
     </div>
   );
 };
 
-export default CreateParcels;
+export default CreateParcel;

@@ -5,7 +5,7 @@ const { sendEmail } = require('../helpers/emailServices'); // Check this path
 // Create a new parcel
 const createParcel = async (req, res) => {
   try {
-    console.log("Create parcel endpoint called with body:", req.body);
+    console.log("Request body received:", req.body);
 
     const {
       email,
@@ -17,19 +17,27 @@ const createParcel = async (req, res) => {
       location,
     } = req.body;
 
+    console.log({
+      email,
+      quantity,
+      weight,
+      length,
+      width,
+      height,
+      location,
+    });
+
     if (!email || !quantity || !weight || !length || !width || !height || !location) {
       console.log("Error: Some fields are missing");
       return res.status(400).json({ error: "All fields are required" });
     }
-
-    
 
     const trackingNumber = generateTrackingNumber();
     console.log("Generated tracking number:", trackingNumber);
 
     const parcel = new Parcel({
       trackingNumber,
-      recipientEmail: email,
+      email,
       quantity,
       weight,
       dimensions: {
@@ -82,6 +90,7 @@ support@yourcompany.com
   }
 };
 
+
 // Update parcel status by ID
 const updateParcelStatusById = async (req, res) => {
   try {
@@ -123,7 +132,7 @@ support@yourcompany.com
     `;
 
     // Send the email notification
-    await sendEmail(updatedParcel.recipientEmail, subject, text);
+    await sendEmail(updatedParcel.email, subject, text);
 
     res.status(200).json({ message: "Parcel status updated", updatedParcel });
   } catch (error) {
@@ -157,7 +166,7 @@ const getParcelStatus = async (req, res) => {
       return res.status(500).json({ error: "Invalid status data for this parcel" });
     }
 
-    await sendParcelStatusEmail(parcel.recipientEmail, parcel.trackingNumber, latestStatus.status, latestStatus.location);
+    await sendParcelStatusEmail(parcel.email, parcel.trackingNumber, latestStatus.status, latestStatus.location);
 
     res.status(200).json({
       trackingNumber: parcel.trackingNumber,
@@ -172,7 +181,7 @@ const getParcelStatus = async (req, res) => {
 };
 
 // Send parcel status email
-const sendParcelStatusEmail = async (recipientEmail, trackingNumber, status, location) => {
+const sendParcelStatusEmail = async (email, trackingNumber, status, location) => {
   try {
     const subject = "Your Shipment Status Update";
     const text = `
@@ -198,9 +207,9 @@ support@yourcompany.com
     `;
 
     // Send email notification
-    await sendEmail(recipientEmail, subject, text);
+    await sendEmail(email, subject, text);
 
-    console.log("Status email sent successfully to:", recipientEmail);
+    console.log("Status email sent successfully to:", email);
   } catch (error) {
     console.error("Error sending status email:", error);
   }
