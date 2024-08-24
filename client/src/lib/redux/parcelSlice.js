@@ -1,13 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from '../apis/api'; // Adjust the path as necessary
 
-export const fetchParcels = createAsyncThunk(
-  "parcels/fetchParcels",
-  async () => {
-    const response = await api.get("/admin/parcels");
-    return response.data;
-  }
-);
+export const fetchParcels = createAsyncThunk('parcels/fetch', async () => {
+  const response = await fetch('/api/parcels');
+  return response.json();
+});
 
 export const createParcel = createAsyncThunk(
   "parcels/createParcel",
@@ -35,16 +32,17 @@ export const fetchParcelByTrackingNumber = createAsyncThunk(
 
 export const fetchParcelById = createAsyncThunk(
   "parcels/fetchParcelById",
-  async (id) => {
-    const response = await api.get(`/admin/parcels/id/${id}`);
+  async (_id) => {
+    const response = await api.get(`/admin/parcels/id/${_id}`); // Ensure the endpoint is correct
     return response.data;
   }
 );
 
+
 export const updateParcel = createAsyncThunk(
   "parcels/updateParcel",
-  async ({ id, updateData }) => {
-    const response = await api.put(`/admin/parcels/${id}`, updateData);
+  async ({ _id, updateData }) => {
+    const response = await api.put(`/admin/parcels/${_id}`, updateData);
     return response.data;
   }
 );
@@ -59,12 +57,15 @@ const parcelsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchParcels.fulfilled, (state, action) => {
+        console.log("fetchParcels.fulfilled", action.payload);
         state.parcels = action.payload;
       })
       .addCase(createParcel.fulfilled, (state, action) => {
+        console.log("createParcel.fulfilled", action.payload);
         state.parcels.push(action.payload);
       })
       .addCase(updateParcelStatus.fulfilled, (state, action) => {
+        console.log("updateParcelStatus.fulfilled", action.payload);
         const index = state.parcels.findIndex(
           (parcel) => parcel._id === action.payload._id
         );
@@ -73,6 +74,7 @@ const parcelsSlice = createSlice({
         }
       })
       .addCase(fetchParcelById.fulfilled, (state, action) => {
+        console.log("fetchParcelById.fulfilled", action.payload);
         const index = state.parcels.findIndex(
           (parcel) => parcel._id === action.payload._id
         );
@@ -82,7 +84,9 @@ const parcelsSlice = createSlice({
           state.parcels.push(action.payload);
         }
       })
+      
       .addCase(updateParcel.fulfilled, (state, action) => {
+        console.log("updateParcel.fulfilled", action.payload);
         const index = state.parcels.findIndex(
           (parcel) => parcel._id === action.payload._id
         );

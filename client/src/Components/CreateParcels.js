@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
-import useParcel from '../hooks/useParcel';
-import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom'; // To render modal in a different DOM node
 
-const CreateParcel = () => {
-  const { createNewParcel, loading, error } = useParcel();
-  const navigate = useNavigate();
-
+const CreateParcelModal = ({ onCreate, onClose }) => {
   const [formData, setFormData] = useState({
     email: '',
     location: '',
@@ -21,110 +17,120 @@ const CreateParcel = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await createNewParcel(formData);
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Failed to create parcel:', err);
-    }
+    onCreate(formData);
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create New Parcel</h1>
-      <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 bg-white rounded shadow">
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-bold mb-2">Recipient Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="location" className="block text-sm font-bold mb-2">Location</label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="quantity" className="block text-sm font-bold mb-2">Quantity</label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="weight" className="block text-sm font-bold mb-2">Weight (kg)</label>
-          <input
-            type="number"
-            id="weight"
-            name="weight"
-            value={formData.weight}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Dimensions (cm)</label>
-          <div className="flex space-x-2">
+  return createPortal(
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4">Create New Parcel</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="location">Location:</label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="quantity">Quantity:</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="weight">Weight:</label>
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              value={formData.weight}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="length">Length:</label>
             <input
               type="number"
               id="length"
               name="length"
-              placeholder="Length"
               value={formData.length}
               onChange={handleChange}
-              className="w-1/3 p-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 border rounded"
               required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="width">Width:</label>
             <input
               type="number"
               id="width"
               name="width"
-              placeholder="Width"
               value={formData.width}
               onChange={handleChange}
-              className="w-1/3 p-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 border rounded"
               required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="height">Height:</label>
             <input
               type="number"
               id="height"
               name="height"
-              placeholder="Height"
               value={formData.height}
               onChange={handleChange}
-              className="w-1/3 p-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 border rounded"
               required
             />
           </div>
-        </div>
-        <button type="submit" className="w-full p-2 bg-green-500 text-white rounded">
-          {loading ? 'Creating...' : 'Create Parcel'}
-        </button>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </form>
-    </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-500 text-white rounded mr-2"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body // Append modal to the body
   );
 };
 
-export default CreateParcel;
+export default CreateParcelModal;
