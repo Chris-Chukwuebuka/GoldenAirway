@@ -214,9 +214,20 @@ support@yourcompany.com
     console.error("Error sending status email:", error);
   }
 };
+//get all parcels
+const getAllParcels = async (req, res) => {
+  try {
+    const parcels = await Parcel.find();
+    res.status(200).json(parcels);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 module.exports = {
   createParcel,
   updateParcelStatusById,
   getParcelStatus,
+  getAllParcels
 };
