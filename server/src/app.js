@@ -25,7 +25,10 @@ app.use(cookieParser());
 
 
 //global middleware configuration for cors
-app.use (cors());
+app.use(cors({
+    origin: 'http://localhost:3000', 
+  credentials: true
+}));
 
 //routes
 app.use('/api', parcelRoutes);
