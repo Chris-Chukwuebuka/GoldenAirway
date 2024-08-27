@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from '../apis/api'; // Adjust the path as necessary
 
+const initialState = {
+  parcels: [],
+  status: "idle",
+  error: null,
+};
+
 export const fetchParcels = createAsyncThunk('parcels/fetch', async () => {
   const response = await fetch('/api/parcels');
   return response.json();
@@ -14,31 +20,6 @@ export const createParcel = createAsyncThunk(
   }
 );
 
-export const updateParcelStatus = createAsyncThunk(
-  "parcels/updateParcelStatus",
-  async ({ id, statusData }) => {
-    const response = await api.put(`/admin/parcels/${id}/status`, statusData);
-    return response.data;
-  }
-);
-
-export const fetchParcelByTrackingNumber = createAsyncThunk(
-  "parcels/fetchParcelByTrackingNumber",
-  async (trackingNumber) => {
-    const response = await api.get(`/parcels/${trackingNumber}`);
-    return response.data;
-  }
-);
-
-export const fetchParcelById = createAsyncThunk(
-  "parcels/fetchParcelById",
-  async (_id) => {
-    const response = await api.get(`/admin/parcels/id/${_id}`); // Ensure the endpoint is correct
-    return response.data;
-  }
-);
-
-
 export const updateParcel = createAsyncThunk(
   "parcels/updateParcel",
   async ({ _id, updateData }) => {
@@ -47,52 +28,73 @@ export const updateParcel = createAsyncThunk(
   }
 );
 
+export const fetchParcelById = createAsyncThunk(
+  "parcels/fetchById",
+  async (id) => {
+    const response = await api.get(`/admin/parcels/${id}`);
+    return response.data;
+  }
+);
+
 const parcelsSlice = createSlice({
   name: "parcels",
-  initialState: {
-    parcels: [],
-    status: "idle",
-    error: null,
-  },
+  initialState,
+  reducers: {}, // We don't need any synchronous reducers in this case
   extraReducers: (builder) => {
     builder
+      .addCase(fetchParcels.pending, (state) => {
+        state.status = "loading";
+        state.error = null; // Clear any previous errors
+      })
       .addCase(fetchParcels.fulfilled, (state, action) => {
-        console.log("fetchParcels.fulfilled", action.payload);
+        state.status = "idle";
         state.parcels = action.payload;
       })
+      .addCase(fetchParcels.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message; // Capture the error message
+      })
+      .addCase(createParcel.pending, (state) => {
+        state.status = "loading"; // Indicate create operation is ongoing
+      })
       .addCase(createParcel.fulfilled, (state, action) => {
-        console.log("createParcel.fulfilled", action.payload);
+        state.status = "idle";
         state.parcels.push(action.payload);
       })
-      .addCase(updateParcelStatus.fulfilled, (state, action) => {
-        console.log("updateParcelStatus.fulfilled", action.payload);
-        const index = state.parcels.findIndex(
-          (parcel) => parcel._id === action.payload._id
-        );
+      .addCase(createParcel.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message; // Capture the error message
+      })
+      .addCase(updateParcel.pending, (state) => {
+        state.status = "loading"; // Indicate update operation is ongoing
+      })
+      .addCase(updateParcel.fulfilled, (state, action) => {
+        state.status = "idle";
+        const index = state.parcels.findIndex((parcel) => parcel._id === action.payload._id);
         if (index !== -1) {
           state.parcels[index] = action.payload;
         }
       })
+      .addCase(updateParcel.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message; // Capture the error message
+      })
+      .addCase(fetchParcelById.pending, (state) => {
+        state.status = "loading"; // Indicate fetching a specific parcel
+        state.error = null; // Clear any previous errors
+      })
       .addCase(fetchParcelById.fulfilled, (state, action) => {
-        console.log("fetchParcelById.fulfilled", action.payload);
-        const index = state.parcels.findIndex(
-          (parcel) => parcel._id === action.payload._id
-        );
-        if (index !== -1) {
-          state.parcels[index] = action.payload;
-        } else {
+        state.status = "idle";
+        // You can choose how to handle the fetched parcel data
+        // Here, we assume you want to update the state if it's not already present
+        const existingParcelIndex = state.parcels.findIndex((parcel) => parcel._id === action.payload._id);
+        if (existingParcelIndex === -1) {
           state.parcels.push(action.payload);
         }
       })
-      
-      .addCase(updateParcel.fulfilled, (state, action) => {
-        console.log("updateParcel.fulfilled", action.payload);
-        const index = state.parcels.findIndex(
-          (parcel) => parcel._id === action.payload._id
-        );
-        if (index !== -1) {
-          state.parcels[index] = action.payload;
-        }
+      .addCase(fetchParcelById.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message; // Capture the error message
       });
   },
 });
