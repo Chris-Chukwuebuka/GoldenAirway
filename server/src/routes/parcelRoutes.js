@@ -14,7 +14,7 @@ router.get('/parcels/:trackingNumber', getParcelStatus);
 // Route to get all parcels
 router.get('/parcels', getAllParcels);
 
-// Route to get a single parcel by ID
+// Route to  delete a single parcel by ID
 
 
 module.exports = router;

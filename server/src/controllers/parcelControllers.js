@@ -40,9 +40,9 @@ Your shipment has been successfully created. Below are the details of your shipm
 
 Tracking Number: ${trackingNumber}
 
-Quantity: ${quantity}Pcs
+Quantity: ${quantity} Pcs
 
-Weight: ${weight}Kg
+Weight: ${weight} Kg
 
 Dimensions: ${length} x ${width} x ${height} cm
 
@@ -194,11 +194,13 @@ const getAllParcels = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   createParcel,
   updateParcelStatusById,
   getParcelStatus,
   getAllParcels,
 };
+
+
+
+

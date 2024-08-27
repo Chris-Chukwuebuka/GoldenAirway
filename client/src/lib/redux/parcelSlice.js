@@ -28,13 +28,7 @@ export const updateParcel = createAsyncThunk(
   }
 );
 
-export const fetchParcelById = createAsyncThunk(
-  "parcels/fetchById",
-  async (id) => {
-    const response = await api.get(`/admin/parcels/${id}`);
-    return response.data;
-  }
-);
+
 
 const parcelsSlice = createSlice({
   name: "parcels",
