@@ -187,7 +187,7 @@ support@yourcompany.com
 const getAllParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find();
-    res.status(200).json(parcels);
+    res.status(200).json({parcels});
   } catch (error) {
     console.error("Error retrieving all parcels:", error);
     res.status(500).json({ error: error.message });
