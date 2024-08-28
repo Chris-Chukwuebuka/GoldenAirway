@@ -2,60 +2,87 @@ const Parcel = require("../models/parcelModel");
 const generateTrackingNumber = require("../helpers/generateTrackingNumber");
 const { sendEmail } = require("../helpers/emailServices");
 
+// Helper function to send parcel status email
+const sendParcelStatusEmail = async (
+  sendersName,
+  sendersEmail,
+  sendersAddress,
+  recipientEmail,
+  trackingNumber,
+  status,
+  location,
+  time
+) => {
+  try {
+    const subject = "Your Shipment Status Update";
+    const text = `
+Dear Customer,
+
+Here is the latest status of your shipment:
+
+Sender's Name: ${sendersName}
+Sender's Address: ${sendersAddress}
+Sender's Email: ${sendersEmail}
+
+Tracking Number: ${trackingNumber}
+Current Status: ${status}
+Location: ${location}
+Time: ${time}
+
+You can continue to monitor the status of your shipment on our website.
+
+Thank you for choosing Golden Airways Courier.
+
+Sincerely,
+
+Golden Airways Courier Support Team
+support@yourcompany.com
++44 7543878790
+    `;
+
+    await sendEmail(recipientEmail, subject, text);
+    console.log("Status email sent successfully to:", recipientEmail);
+  } catch (error) {
+    console.error("Error sending status email:", error);
+  }
+};
+
 // Create a new parcel
 const createParcel = async (req, res) => {
+  const {
+    email,
+    quantity,
+    weight,
+    length,
+    width,
+    height,
+    location,
+    sendersName,
+    sendersAddress,
+    sendersEmail,
+    receiversName,
+    receiversAddress,
+  } = req.body;
+
+  if (
+    !email ||
+    !quantity ||
+    !weight ||
+    !length ||
+    !width ||
+    !height ||
+    !location ||
+    !sendersName ||
+    !sendersAddress ||
+    !sendersEmail ||
+    !receiversName ||
+    !receiversAddress
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
   try {
-    const {
-      email,
-      quantity,
-      weight,
-      length,
-      width,
-      height,
-      location,
-      sendersName,
-      sendersAddress,
-      sendersEmail,
-      receiversName,
-      receiversAddress,
-    } = req.body;
-
-    console.log("createParcel: received data", {
-      email,
-      quantity,
-      weight,
-      length,
-      width,
-      height,
-      location,
-      sendersName,
-      sendersAddress,
-      sendersEmail,
-      receiversName,
-      receiversAddress,
-    });
-
-    if (
-      !email ||
-      !quantity ||
-      !weight ||
-      !length ||
-      !width ||
-      !height ||
-      !location ||
-      !sendersName ||
-      !sendersAddress ||
-      !sendersEmail ||
-      !receiversName ||
-      !receiversAddress
-    ) {
-      console.log("createParcel: missing required fields");
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
     const trackingNumber = generateTrackingNumber();
-
-    console.log("createParcel: generated tracking number", trackingNumber);
 
     const parcel = new Parcel({
       trackingNumber,
@@ -64,11 +91,11 @@ const createParcel = async (req, res) => {
       weight,
       dimensions: { length, width, height },
       status: {
-        status: " Shipment Created",
+        status: "Shipment Created",
         location,
-        time: " 00:00",
+        time: "00:00",
         timestamp: Date.now(),
-      }, // Initialize status as an object
+      },
       sendersName,
       sendersAddress,
       sendersEmail,
@@ -77,30 +104,23 @@ const createParcel = async (req, res) => {
       paymentMethod: "---------",
     });
 
-    console.log("createParcel: created parcel object", parcel);
-
     await parcel.save();
-
-    console.log("createParcel: parcel saved successfully");
+    console.log("Parcel saved successfully");
 
     const subject = "Shipment Notification";
     const text = `
 Dear Customer,
 
-Your shipment has been successfully created. Below are the details of your shipment from Golden Airways Courier.:
+Your shipment has been successfully created. Below are the details of your shipment from Golden Airways Courier:
 
-sendersName: ${sendersName}
-
-sendersAddress: ${sendersAddress}
-
-sendersEmail: ${sendersEmail}
+Sender's Name: ${sendersName}
+Sender's Address: ${sendersAddress}
+Sender's Email: ${sendersEmail}
 
 Tracking Number: ${trackingNumber}
 
 Quantity: ${quantity} Pcs
-
 Weight: ${weight} Kg
-
 Dimensions: ${length} x ${width} x ${height} cm
 
 You can use this tracking number to monitor the status of your shipment on our website.
@@ -114,11 +134,8 @@ support@yourcompany.com
 +44 7543878790
     `;
 
-    console.log("createParcel: email body", text);
-
     await sendEmail(email, subject, text);
-
-    console.log("createParcel: email sent successfully");
+    console.log("Notification email sent successfully");
 
     res.status(201).json({ message: "Parcel created", trackingNumber });
   } catch (error) {
@@ -129,20 +146,18 @@ support@yourcompany.com
 
 // Update parcel status by ID
 const updateParcelStatusById = async (req, res) => {
+  const { _id } = req.params;
+  const { status, location, time } = req.body;
+
+  if (!status || !location || !time) {
+    return res.status(400).json({ error: "Status, location, and time are required" });
+  }
+
   try {
-    const { _id } = req.params;
-    const { status, location, time } = req.body;
-
-    if (!status || !location || !time) {
-      return res
-        .status(400)
-        .json({ error: "Status and location are required" });
-    }
-
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        status: { status, location, time, timestamp: Date.now() }, // Update status as an object
+        status: { status, location, time, timestamp: Date.now() },
         updatedAt: Date.now(),
       },
       { new: true }
@@ -161,9 +176,7 @@ The status of your shipment has been updated. Below are the details:
 Tracking Number: ${updatedParcel.trackingNumber}
 
 New Status: ${status}
-
 Current Location: ${location}
-
 Updated Time: ${time}
 
 Thank you for choosing Golden Airways Courier.
@@ -176,6 +189,7 @@ support@yourcompany.com
     `;
 
     await sendEmail(updatedParcel.email, subject, text);
+    console.log("Update email sent successfully");
 
     res.status(200).json({ message: "Parcel status updated", updatedParcel });
   } catch (error) {
@@ -187,18 +201,14 @@ support@yourcompany.com
 // Get parcel status
 const getParcelStatus = async (req, res) => {
   try {
-    const parcel = await Parcel.findOne({
-      trackingNumber: req.params.trackingNumber,
-    });
+    const parcel = await Parcel.findOne({ trackingNumber: req.params.trackingNumber });
 
     if (!parcel) {
       return res.status(404).json({ error: "Parcel not found" });
     }
 
     if (!parcel.status) {
-      return res
-        .status(400)
-        .json({ error: "No status available for this parcel" });
+      return res.status(400).json({ error: "No status available for this parcel" });
     }
 
     await sendParcelStatusEmail(
@@ -212,64 +222,10 @@ const getParcelStatus = async (req, res) => {
       parcel.status.time
     );
 
-    res.status(200).json({
-      trackingNumber: parcel.trackingNumber,
-      status: parcel.status,
-    });
+    res.status(200).json({ trackingNumber: parcel.trackingNumber, status: parcel.status });
   } catch (error) {
     console.error("Error retrieving parcel status:", error);
     res.status(500).json({ error: "Failed to retrieve parcel status" });
-  }
-};
-
-// Send parcel status email
-const sendParcelStatusEmail = async (
-  sendersName,
-  sendersEmail,
-  sendersAddress,
-  email,
-  trackingNumber,
-  status,
-  location,
-  time
-) => {
-  try {
-    const subject = "Your Shipment Status Update";
-    const text = `
-Dear Customer,
-
-Here is the latest status of your shipment:
-
-sendersName: ${sendersName}
-
-sendersAddress: ${sendersAddress}
-
-sendersEmail: ${sendersEmail}
-
-Tracking Number: ${trackingNumber}
-
-Current Status: ${status}
-
-Location: ${location}
-
-Time: ${time}
-
-You can continue to monitor the status of your shipment on our website.
-
-Thank you for choosing Golden Airways Courier.
-
-Sincerely,
-
-Golden Airways Courier Support Team
-support@yourcompany.com
-+44 7543878790
-    `;
-
-    await sendEmail(email, subject, text);
-
-    console.log("Status email sent successfully to:", email);
-  } catch (error) {
-    console.error("Error sending status email:", error);
   }
 };
 
@@ -280,15 +236,15 @@ const getAllParcels = async (req, res) => {
     res.status(200).json({ parcels });
   } catch (error) {
     console.error("Error retrieving all parcels:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Failed to retrieve parcels" });
   }
 };
 
 // Delete parcel by ID
 const deleteParcelById = async (req, res) => {
-  try {
-    const { _id } = req.params;
+  const { _id } = req.params;
 
+  try {
     const deletedParcel = await Parcel.findByIdAndDelete(_id);
 
     if (!deletedParcel) {
@@ -298,6 +254,7 @@ const deleteParcelById = async (req, res) => {
     console.log("Parcel deleted successfully");
     res.status(200).json({ message: "Parcel deleted", deletedParcel });
   } catch (error) {
+    console.error("Error deleting parcel:", error);
     res.status(500).json({ error: "Failed to delete parcel" });
   }
 };
