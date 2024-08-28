@@ -9,6 +9,7 @@ const parcelSchema = new mongoose.Schema({
   sendersEmail: { type: String },
   receiversName: { type: String },
   receiversAddress: { type: String },
+  receiversNumber: { type: Number },
   paymentMethod: {
     type: String,
   },

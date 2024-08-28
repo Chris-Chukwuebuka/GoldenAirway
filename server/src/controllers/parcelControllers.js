@@ -18,6 +18,7 @@ const createParcel = async (req, res) => {
       sendersEmail,
       receiversName,
       receiversAddress,
+      receiversNumber,
     } = req.body;
 
     if (
@@ -32,7 +33,8 @@ const createParcel = async (req, res) => {
       !sendersAddress ||
       !sendersEmail ||
       !receiversName ||
-      !receiversAddress
+      !receiversAddress ||
+      !receiversNumber
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -56,7 +58,8 @@ const createParcel = async (req, res) => {
       sendersEmail,
       receiversName,
       receiversAddress,
-      paymentMethod: "---------",
+      receiversNumber,
+      paymentMethod: "",
     });
 
     await parcel.save();
