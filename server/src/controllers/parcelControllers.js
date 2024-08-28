@@ -217,9 +217,27 @@ const getAllParcels = async (req, res) => {
   }
 };
 
+// Delete parcel by ID
+const deleteParcelById = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const deletedParcel = await Parcel.findByIdAndDelete(_id);
+
+    if (!deletedParcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    res.status(200).json({ message: "Parcel deleted", deletedParcel });
+  } catch (error) {
+    console.error("Error deleting parcel:", error);
+    res.status(500).json({ error: "Failed to delete parcel" });
+  }
+};
+
 module.exports = {
   createParcel,
   updateParcelStatusById,
   getParcelStatus,
   getAllParcels,
+  deleteParcelById,
 };
