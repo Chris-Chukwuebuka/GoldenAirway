@@ -15,11 +15,24 @@ const createParcel = async (req, res) => {
       location,
     } = req.body;
 
+    console.log("createParcel: received data", {
+      email,
+      quantity,
+      weight,
+      length,
+      width,
+      height,
+      location,
+    });
+
     if (!email || !quantity || !weight || !length || !width || !height || !location) {
+      console.log("createParcel: missing required fields");
       return res.status(400).json({ error: "All fields are required" });
     }
 
     const trackingNumber = generateTrackingNumber();
+
+    console.log("createParcel: generated tracking number", trackingNumber);
 
     const parcel = new Parcel({
       trackingNumber,
@@ -27,10 +40,14 @@ const createParcel = async (req, res) => {
       quantity,
       weight,
       dimensions: { length, width, height },
-      status: [{ status: "Created", location }],
+      status: { status: "Created", location }
     });
 
+    console.log("createParcel: created parcel object", parcel);
+
     await parcel.save();
+
+    console.log("createParcel: parcel saved successfully");
 
     const subject = "Shipment Notification !!";
     const text = `
@@ -57,7 +74,11 @@ support@yourcompany.com
 +44 7543878790
     `;
 
+    console.log("createParcel: email body", text);
+
     await sendEmail(email, subject, text);
+
+    console.log("createParcel: email sent successfully");
 
     res.status(201).json({ message: "Parcel created", trackingNumber });
   } catch (error) {
