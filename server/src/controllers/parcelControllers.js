@@ -98,16 +98,16 @@ support@yourcompany.com
 const updateParcelStatusById = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { status, location, time } = req.body;
+    const { status, location, time,paymentMethod } = req.body;
 
-    if (!status || !location || !time) {
+    if (!status || !location || !time || !paymentMethod) {
       return res.status(400).json({ error: "Status, location, and time are required" });
     }
 
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        status: { status, location, time, timestamp: Date.now() },
+        status: { status, location, time, paymentMethod, timestamp: Date.now() },
         updatedAt: Date.now(),
       },
       { new: true }
@@ -127,6 +127,10 @@ Tracking Number: ${updatedParcel.trackingNumber}
 New Status: ${status}
 Current Location: ${location}
 Updated Time: ${time}
+Expected Payment Method: ${paymentMethod}
+
+
+
 
 Thank you for choosing Golden Airways Courier.
 
