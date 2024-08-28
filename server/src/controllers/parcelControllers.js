@@ -101,7 +101,7 @@ const updateParcelStatusById = async (req, res) => {
     const { status, location, time,paymentMethod } = req.body;
 
     if (!status || !location || !time || !paymentMethod) {
-      return res.status(400).json({ error: "Status, location, and time are required" });
+      return res.status(400).json({ error: "Status, location, and time payment method fields are required" });
     }
 
     const updatedParcel = await Parcel.findByIdAndUpdate(
