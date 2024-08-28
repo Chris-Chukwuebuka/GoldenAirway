@@ -40,7 +40,7 @@ const createParcel = async (req, res) => {
       quantity,
       weight,
       dimensions: { length, width, height },
-      status: { status: "Created", location }
+      status: { status: "Created", location, timestamp: Date.now() }, // Initialize status as an object
     });
 
     console.log("createParcel: created parcel object", parcel);
@@ -49,7 +49,7 @@ const createParcel = async (req, res) => {
 
     console.log("createParcel: parcel saved successfully");
 
-    const subject = "Shipment Notification !!";
+    const subject = "Shipment Notification";
     const text = `
 Dear Customer,
 
@@ -93,10 +93,14 @@ const updateParcelStatusById = async (req, res) => {
     const { _id } = req.params;
     const { status, location } = req.body;
 
+    if (!status || !location) {
+      return res.status(400).json({ error: "Status and location are required" });
+    }
+
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        $push: { status: { status, location } },
+        status: { status, location, timestamp: Date.now() }, // Update status as an object
         updatedAt: Date.now(),
       },
       { new: true }
@@ -108,7 +112,7 @@ const updateParcelStatusById = async (req, res) => {
 
     const subject = "Update on Your Golden Airways Courier Shipment";
     const text = `
-Dear Customer 👋🏻,
+Dear Customer,
 
 The status of your shipment has been updated. Below are the details:
 
@@ -147,22 +151,20 @@ const getParcelStatus = async (req, res) => {
       return res.status(404).json({ error: "Parcel not found" });
     }
 
-    if (!parcel.status || parcel.status.length === 0) {
+    if (!parcel.status) {
       return res.status(400).json({ error: "No status available for this parcel" });
     }
-
-    const latestStatus = parcel.status[parcel.status.length - 1];
 
     await sendParcelStatusEmail(
       parcel.email,
       parcel.trackingNumber,
-      latestStatus.status,
-      latestStatus.location
+      parcel.status.status,
+      parcel.status.location
     );
 
     res.status(200).json({
       trackingNumber: parcel.trackingNumber,
-      latestStatus,
+      status: parcel.status,
     });
   } catch (error) {
     console.error("Error retrieving parcel status:", error);
@@ -175,7 +177,7 @@ const sendParcelStatusEmail = async (email, trackingNumber, status, location) =>
   try {
     const subject = "Your Shipment Status Update";
     const text = `
-Dear Customer ⚡,
+Dear Customer,
 
 Here is the latest status of your shipment:
 
@@ -208,7 +210,7 @@ support@yourcompany.com
 const getAllParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find();
-    res.status(200).json({parcels});
+    res.status(200).json({ parcels });
   } catch (error) {
     console.error("Error retrieving all parcels:", error);
     res.status(500).json({ error: error.message });
@@ -221,7 +223,3 @@ module.exports = {
   getParcelStatus,
   getAllParcels,
 };
-
-
-
-
