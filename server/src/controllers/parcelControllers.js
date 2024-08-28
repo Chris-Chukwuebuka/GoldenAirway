@@ -1,19 +1,12 @@
 const Parcel = require("../models/parcelModel");
 const generateTrackingNumber = require("../helpers/generateTrackingNumber");
-const { sendEmail } = require('../helpers/emailServices');
+const { sendEmail } = require("../helpers/emailServices");
 
 // Create a new parcel
 const createParcel = async (req, res) => {
   try {
-    const {
-      email,
-      quantity,
-      weight,
-      length,
-      width,
-      height,
-      location,
-    } = req.body;
+    const { email, quantity, weight, length, width, height, location } =
+      req.body;
 
     console.log("createParcel: received data", {
       email,
@@ -25,7 +18,15 @@ const createParcel = async (req, res) => {
       location,
     });
 
-    if (!email || !quantity || !weight || !length || !width || !height || !location) {
+    if (
+      !email ||
+      !quantity ||
+      !weight ||
+      !length ||
+      !width ||
+      !height ||
+      !location
+    ) {
       console.log("createParcel: missing required fields");
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -94,7 +95,9 @@ const updateParcelStatusById = async (req, res) => {
     const { status, location } = req.body;
 
     if (!status || !location) {
-      return res.status(400).json({ error: "Status and location are required" });
+      return res
+        .status(400)
+        .json({ error: "Status and location are required" });
     }
 
     const updatedParcel = await Parcel.findByIdAndUpdate(
@@ -152,7 +155,9 @@ const getParcelStatus = async (req, res) => {
     }
 
     if (!parcel.status) {
-      return res.status(400).json({ error: "No status available for this parcel" });
+      return res
+        .status(400)
+        .json({ error: "No status available for this parcel" });
     }
 
     await sendParcelStatusEmail(
@@ -173,7 +178,12 @@ const getParcelStatus = async (req, res) => {
 };
 
 // Send parcel status email
-const sendParcelStatusEmail = async (email, trackingNumber, status, location) => {
+const sendParcelStatusEmail = async (
+  email,
+  trackingNumber,
+  status,
+  location
+) => {
   try {
     const subject = "Your Shipment Status Update";
     const text = `
@@ -221,18 +231,16 @@ const getAllParcels = async (req, res) => {
 const deleteParcelById = async (req, res) => {
   try {
     const { _id } = req.params;
-    console.log('Deleting parcel with ID:', _id);
+
     const deletedParcel = await Parcel.findByIdAndDelete(_id);
 
     if (!deletedParcel) {
-      console.log('Parcel not found');
       return res.status(404).json({ error: "Parcel not found" });
     }
 
-    console.log('Parcel deleted successfully');
+    console.log("Parcel deleted successfully");
     res.status(200).json({ message: "Parcel deleted", deletedParcel });
   } catch (error) {
-    console.error("Error deleting parcel:", error);
     res.status(500).json({ error: "Failed to delete parcel" });
   }
 };
