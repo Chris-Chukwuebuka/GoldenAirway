@@ -5,8 +5,20 @@ const { sendEmail } = require("../helpers/emailServices");
 // Create a new parcel
 const createParcel = async (req, res) => {
   try {
-    const { email, quantity, weight, length, width, height, location } =
-      req.body;
+    const {
+      email,
+      quantity,
+      weight,
+      length,
+      width,
+      height,
+      location,
+      sendersName,
+      sendersAddress,
+      sendersEmail,
+      receiversName,
+      receiversAddress,
+    } = req.body;
 
     console.log("createParcel: received data", {
       email,
@@ -16,6 +28,11 @@ const createParcel = async (req, res) => {
       width,
       height,
       location,
+      sendersName,
+      sendersAddress,
+      sendersEmail,
+      receiversName,
+      receiversAddress,
     });
 
     if (
@@ -25,7 +42,12 @@ const createParcel = async (req, res) => {
       !length ||
       !width ||
       !height ||
-      !location
+      !location ||
+      !sendersName ||
+      !sendersAddress ||
+      !sendersEmail ||
+      !receiversName ||
+      !receiversAddress
     ) {
       console.log("createParcel: missing required fields");
       return res.status(400).json({ error: "All fields are required" });
@@ -41,7 +63,18 @@ const createParcel = async (req, res) => {
       quantity,
       weight,
       dimensions: { length, width, height },
-      status: { status: "Created", location, timestamp: Date.now() }, // Initialize status as an object
+      status: {
+        status: " Shipment Created",
+        location,
+        time: " 00:00",
+        timestamp: Date.now(),
+      }, // Initialize status as an object
+      sendersName,
+      sendersAddress,
+      sendersEmail,
+      receiversName,
+      receiversAddress,
+      paymentMethod: "---------",
     });
 
     console.log("createParcel: created parcel object", parcel);
@@ -54,7 +87,13 @@ const createParcel = async (req, res) => {
     const text = `
 Dear Customer,
 
-Your shipment has been successfully created. Below are the details of your shipment:
+Your shipment has been successfully created. Below are the details of your shipment from Golden Airways Courier.:
+
+sendersName: ${sendersName}
+
+sendersAddress: ${sendersAddress}
+
+sendersEmail: ${sendersEmail}
 
 Tracking Number: ${trackingNumber}
 
@@ -92,9 +131,9 @@ support@yourcompany.com
 const updateParcelStatusById = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { status, location } = req.body;
+    const { status, location, time } = req.body;
 
-    if (!status || !location) {
+    if (!status || !location || !time) {
       return res
         .status(400)
         .json({ error: "Status and location are required" });
@@ -103,7 +142,7 @@ const updateParcelStatusById = async (req, res) => {
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        status: { status, location, timestamp: Date.now() }, // Update status as an object
+        status: { status, location, time, timestamp: Date.now() }, // Update status as an object
         updatedAt: Date.now(),
       },
       { new: true }
@@ -124,6 +163,8 @@ Tracking Number: ${updatedParcel.trackingNumber}
 New Status: ${status}
 
 Current Location: ${location}
+
+Updated Time: ${time}
 
 Thank you for choosing Golden Airways Courier.
 
@@ -161,10 +202,14 @@ const getParcelStatus = async (req, res) => {
     }
 
     await sendParcelStatusEmail(
+      parcel.sendersName,
+      parcel.sendersEmail,
+      parcel.sendersAddress,
       parcel.email,
       parcel.trackingNumber,
       parcel.status.status,
-      parcel.status.location
+      parcel.status.location,
+      parcel.status.time
     );
 
     res.status(200).json({
@@ -179,10 +224,14 @@ const getParcelStatus = async (req, res) => {
 
 // Send parcel status email
 const sendParcelStatusEmail = async (
+  sendersName,
+  sendersEmail,
+  sendersAddress,
   email,
   trackingNumber,
   status,
-  location
+  location,
+  time
 ) => {
   try {
     const subject = "Your Shipment Status Update";
@@ -191,11 +240,19 @@ Dear Customer,
 
 Here is the latest status of your shipment:
 
+sendersName: ${sendersName}
+
+sendersAddress: ${sendersAddress}
+
+sendersEmail: ${sendersEmail}
+
 Tracking Number: ${trackingNumber}
 
 Current Status: ${status}
 
 Location: ${location}
+
+Time: ${time}
 
 You can continue to monitor the status of your shipment on our website.
 
