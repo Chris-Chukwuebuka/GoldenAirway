@@ -221,12 +221,15 @@ const getAllParcels = async (req, res) => {
 const deleteParcelById = async (req, res) => {
   try {
     const { _id } = req.params;
+    console.log('Deleting parcel with ID:', _id);
     const deletedParcel = await Parcel.findByIdAndDelete(_id);
 
     if (!deletedParcel) {
+      console.log('Parcel not found');
       return res.status(404).json({ error: "Parcel not found" });
     }
 
+    console.log('Parcel deleted successfully');
     res.status(200).json({ message: "Parcel deleted", deletedParcel });
   } catch (error) {
     console.error("Error deleting parcel:", error);

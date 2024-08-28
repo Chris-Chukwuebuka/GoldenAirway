@@ -15,7 +15,7 @@ router.get('/parcels/:trackingNumber', getParcelStatus);
 router.get('/parcels', getAllParcels);
 
 // Route to  delete a single parcel by ID
-router.delete('/admin/parcels/:_id', deleteParcelById);
+router.delete('/parcels/:_id', deleteParcelById);
 
 
 module.exports = router;
