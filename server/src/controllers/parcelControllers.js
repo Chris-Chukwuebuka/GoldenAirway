@@ -101,16 +101,18 @@ support@yourcompany.com
 const updateParcelStatusById = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { status, location, time,paymentMethod } = req.body;
+    const { status, location, time, paymentMethod } = req.body;
 
     if (!status || !location || !time || !paymentMethod) {
-      return res.status(400).json({ error: "Status, location, and time payment method fields are required" });
+      return res.status(400).json({ error: "Status, location, time, and payment method fields are required" });
     }
 
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        status: { status, location, time, paymentMethod, timestamp: Date.now() },
+        $push: {
+          status: { status, location, time, paymentMethod, timestamp: Date.now() },
+        },
         updatedAt: Date.now(),
       },
       { new: true }
@@ -132,9 +134,6 @@ Current Location: ${location}
 Updated Time: ${time}
 Expected Payment Method: ${paymentMethod}
 
-
-
-
 Thank you for choosing Golden Airways Courier.
 
 Sincerely,
@@ -151,6 +150,7 @@ support@yourcompany.com
     res.status(500).json({ error: "Failed to update parcel status" });
   }
 };
+
 
 // Get parcel status
 const getParcelStatus = async (req, res) => {
@@ -256,11 +256,33 @@ const deleteParcelById = async (req, res) => {
     res.status(500).json({ error: "Failed to delete parcel" });
   }
 };
+//get a particular parcels status history by tracking number
+const getParcelStatusHistory = async (req, res) => {
+  try {
+    const parcel = await Parcel.findOne({
+      trackingNumber: req.params.trackingNumber,
+    });
+
+    if (!parcel) {
+      return res.status(404).json({ error: "Parcel not found" });
+    }
+
+    res.status(200).json({
+      trackingNumber: parcel.trackingNumber,
+      status: parcel.status, // Return all status records
+    });
+  } catch (error) {
+    console.error("Error retrieving parcel status:", error);
+    res.status(500).json({ error: "Failed to retrieve parcel status" });
+  }
+};
+
 
 module.exports = {
   createParcel,
   updateParcelStatusById,
   getParcelStatus,
   getAllParcels,
+  getParcelStatusHistory,
   deleteParcelById,
 };

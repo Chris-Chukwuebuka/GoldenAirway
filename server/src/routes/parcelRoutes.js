@@ -1,5 +1,5 @@
 const express = require('express');
-const { createParcel, updateParcelStatusById, getParcelStatus, getAllParcels, deleteParcelById } = require('../controllers/parcelControllers');
+const { createParcel, updateParcelStatusById, getParcelStatus, getAllParcels,getParcelStatusHistory, deleteParcelById } = require('../controllers/parcelControllers');
 const router = express.Router();
 
 // Route to create a new parcel
@@ -17,5 +17,7 @@ router.get('/parcels', getAllParcels);
 // Route to  delete a single parcel by ID
 router.delete('/parcels/:_id', deleteParcelById);
 
+// Define the route for getting status history
+router.get('/parcel/status-history/:trackingNumber', getParcelStatusHistory);
 
 module.exports = router;

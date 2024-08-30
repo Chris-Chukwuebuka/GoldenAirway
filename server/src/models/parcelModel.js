@@ -10,23 +10,17 @@ const parcelSchema = new mongoose.Schema({
   receiversName: { type: String },
   receiversAddress: { type: String },
   receiversNumber: { type: Number },
-  paymentMethod: {
-    type: String,
-  },
-  status: {
-    status: String,
-    timestamp: { type: Date, default: Date.now },
-    location: String,
-    time: String,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  weight: {
-    type: Number,
-    required: true,
-  },
+  paymentMethod: { type: String },
+  status: [
+    {
+      status: String,
+      timestamp: { type: Date, default: Date.now },
+      location: String,
+      time: String,
+    }
+  ],
+  quantity: { type: Number, required: true },
+  weight: { type: Number, required: true },
   dimensions: {
     length: { type: Number, required: true },
     width: { type: Number, required: true },
