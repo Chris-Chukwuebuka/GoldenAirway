@@ -19,6 +19,7 @@ const createParcel = async (req, res) => {
       receiversName,
       receiversAddress,
       receiversNumber,
+      paymentMethod
     } = req.body;
 
     if (
@@ -34,7 +35,8 @@ const createParcel = async (req, res) => {
       !sendersEmail ||
       !receiversName ||
       !receiversAddress ||
-      !receiversNumber
+      !receiversNumber ||
+      !paymentMethod
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
