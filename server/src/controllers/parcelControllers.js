@@ -19,9 +19,10 @@ const createParcel = async (req, res) => {
       receiversName,
       receiversAddress,
       receiversNumber,
-      paymentMethod
+      paymentMethod,
     } = req.body;
 
+    // Check if all required fields are present
     if (
       !email ||
       !quantity ||
@@ -41,8 +42,10 @@ const createParcel = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Generate a tracking number
     const trackingNumber = generateTrackingNumber();
 
+    // Create and save the new parcel
     const parcel = new Parcel({
       trackingNumber,
       email,
@@ -61,11 +64,12 @@ const createParcel = async (req, res) => {
       receiversName,
       receiversAddress,
       receiversNumber,
-      paymentMethod: "",
+      paymentMethod,
     });
 
     await parcel.save();
 
+    // Send a notification email
     const subject = "Shipment Notification";
     const text = `
 Dear ${receiversName},
@@ -105,10 +109,12 @@ const updateParcelStatusById = async (req, res) => {
     const { _id } = req.params;
     const { status, location, time, paymentMethod } = req.body;
 
+    // Check if all required fields are present
     if (!status || !location || !time || !paymentMethod) {
       return res.status(400).json({ error: "Status, location, time, and payment method fields are required" });
     }
 
+    // Update the parcel's status
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
@@ -124,6 +130,7 @@ const updateParcelStatusById = async (req, res) => {
       return res.status(404).json({ error: "Parcel not found" });
     }
 
+    // Send an update notification email
     const subject = "Update on Your Golden Airways Courier Shipment";
     const text = `
 Dear ${updatedParcel.receiversName},
@@ -153,8 +160,7 @@ support@yourcompany.com
   }
 };
 
-
-// Get parcel status
+// Get parcel status by tracking number
 const getParcelStatus = async (req, res) => {
   try {
     const parcel = await Parcel.findOne({
@@ -165,6 +171,7 @@ const getParcelStatus = async (req, res) => {
       return res.status(404).json({ error: "Parcel not found" });
     }
 
+    // Send the status update email
     await sendParcelStatusEmail(
       parcel.sendersName,
       parcel.sendersEmail,
@@ -186,7 +193,7 @@ const getParcelStatus = async (req, res) => {
   }
 };
 
-// Send parcel status email
+// Send parcel status update email
 const sendParcelStatusEmail = async (
   sendersName,
   sendersEmail,
@@ -255,10 +262,12 @@ const deleteParcelById = async (req, res) => {
     console.log("Parcel deleted successfully");
     res.status(200).json({ message: "Parcel deleted", deletedParcel });
   } catch (error) {
+    console.error("Error deleting parcel:", error);
     res.status(500).json({ error: "Failed to delete parcel" });
   }
 };
-//get a particular parcels status history by tracking number
+
+// Get a particular parcel's status history by tracking number
 const getParcelStatusHistory = async (req, res) => {
   try {
     const parcel = await Parcel.findOne({
@@ -274,11 +283,10 @@ const getParcelStatusHistory = async (req, res) => {
       status: parcel.status, // Return all status records
     });
   } catch (error) {
-    console.error("Error retrieving parcel status:", error);
-    res.status(500).json({ error: "Failed to retrieve parcel status" });
+    console.error("Error retrieving parcel status history:", error);
+    res.status(500).json({ error: "Failed to retrieve parcel status history" });
   }
 };
-
 
 module.exports = {
   createParcel,
