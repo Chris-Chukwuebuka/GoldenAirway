@@ -19,7 +19,6 @@ const createParcel = async (req, res) => {
       receiversName,
       receiversAddress,
       receiversNumber,
-      paymentMethod,
     } = req.body;
 
     // Check if all required fields are present
@@ -36,8 +35,7 @@ const createParcel = async (req, res) => {
       !sendersEmail ||
       !receiversName ||
       !receiversAddress ||
-      !receiversNumber ||
-      !paymentMethod
+      !receiversNumber 
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -56,7 +54,7 @@ const createParcel = async (req, res) => {
         status: "Shipment Created",
         location,
         time: "00:00",
-        paymentMethod,
+        paymentMethod: "input the payment methodand means of payment", 
         timestamp: Date.now(),
       },
       sendersName,
