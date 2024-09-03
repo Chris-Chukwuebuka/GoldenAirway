@@ -26,7 +26,7 @@ app.use(cookieParser());
 
 //global middleware configuration for cors
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000' || 'https://goldenairwayadminpanel.vercel.app', 
   credentials: true
 }));
 
