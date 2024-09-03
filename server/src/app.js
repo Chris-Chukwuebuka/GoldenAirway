@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   });
 
 //global middleware configuration for cors
-app.use(cors({
+app.use('*', cors({
     origin: ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairwaycourier-website.vercel.app/'], // Your actual frontend domains
     credentials: true // Allows cookies and other credentials to be sent
   }));
@@ -40,18 +40,6 @@ app.use('/api', parcelRoutes);
 app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
 
-//global middleware configuration for session
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_session_secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 60 * 60 * 1000
-    }
-}));
 
 
 //create a default route
