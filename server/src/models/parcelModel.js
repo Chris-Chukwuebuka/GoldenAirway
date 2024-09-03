@@ -10,7 +10,6 @@ const parcelSchema = new mongoose.Schema({
   receiversName: { type: String },
   receiversAddress: { type: String },
   receiversNumber: { type: Number },
-  paymentMethod: { type: String },
   status: [
     {
       status: String,
