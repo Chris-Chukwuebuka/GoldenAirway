@@ -4,49 +4,40 @@ const app = express();
 require('dotenv').config(); // Load environment variables
 
 const cookieParser = require('cookie-parser');
-
-const session = require('express-session');
-
 const bodyParser = require('body-parser');
 const parcelRoutes = require('./routes/parcelRoutes');
-
-//import the routes for admin and authentication
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 
-//global middleware configuration for json data
+// Global middleware configuration
 app.use(express.json());
-
-//global middleware configuration for bodyparser
 app.use(bodyParser.json());
-
-//global middleware configuration for cookie parser
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-    console.log('CORS middleware applied');
-    next();
-  });
+// CORS configuration
+const corsOptions = {
+  origin: (origin, callback) => {
+    const allowedOrigins = ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairwaycourier-website.vercel.app'];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+};
 
-//global middleware configuration for cors
-app.use( cors({
-    origin: ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairwaycourier-website.vercel.app/'], // Your actual frontend domains
-    credentials: true // Allows cookies and other credentials to be sent
-  }));
-  
+app.use(cors(corsOptions));
 
-//routes
+// Routes
 app.use('/api', parcelRoutes);
 app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
 
-
-
-//create a default route
+// Default route
 app.get('/', (req, res) => {
-    res.send('Hello Server Is Live');
-    });
+  res.send('Hello Server Is Live');
+});
 
-
-
-    module.exports = app;
+module.exports = app;
