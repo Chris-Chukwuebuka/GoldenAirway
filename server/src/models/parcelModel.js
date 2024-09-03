@@ -17,6 +17,7 @@ const parcelSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
       location: String,
       time: String,
+      paymentMethod: String,
     }
   ],
   quantity: { type: Number, required: true },
