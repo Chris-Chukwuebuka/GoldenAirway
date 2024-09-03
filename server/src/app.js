@@ -23,6 +23,10 @@ app.use(bodyParser.json());
 //global middleware configuration for cookie parser
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+    console.log('CORS middleware applied');
+    next();
+  });
 
 //global middleware configuration for cors
 app.use(cors({
