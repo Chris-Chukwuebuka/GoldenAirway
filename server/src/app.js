@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 
 //global middleware configuration for cors
 app.use(cors({
-    origin: ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairway-website.vercel.app'], // Your actual frontend domains
+    origin: ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairwaycourier-website.vercel.app/'], // Your actual frontend domains
     credentials: true // Allows cookies and other credentials to be sent
   }));
   
