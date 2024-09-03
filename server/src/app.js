@@ -25,10 +25,13 @@ app.use(cookieParser());
 
 
 //global middleware configuration for cors
+const cors = require('cors');
+
 app.use(cors({
-    origin: 'https://goldenairwayadminpanel.vercel.app', // Replace with your frontend domain
+  origin: ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairway-website.vercel.app'], // Replace with your actual frontend domains
   credentials: true
 }));
+
 
 //routes
 app.use('/api', parcelRoutes);
