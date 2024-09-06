@@ -17,7 +17,7 @@ app.use(cookieParser());
 // CORS configuration
 const corsOptions = {
   origin: (origin, callback) => {
-    const allowedOrigins = ['https://goldenairwayadminpanel.vercel.app', 'https://goldenairwaycourier-website.vercel.app'];
+    const allowedOrigins = ['https://goldenairwayadminpanel.vercel.app', 'https://www.goldenairwaycourier.com'];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
