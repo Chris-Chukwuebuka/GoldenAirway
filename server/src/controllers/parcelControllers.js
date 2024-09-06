@@ -88,7 +88,7 @@ Thank you for choosing Golden Airways Courier.
 
 Sincerely,
 Golden Airways Courier Support Team
-support@yourcompany.com
+info@goldenairwaycourier.com
 +44 7543878790
     `;
 
@@ -145,7 +145,7 @@ Thank you for choosing Golden Airways Courier.
 
 Sincerely,
 Golden Airways Courier Support Team
-support@yourcompany.com
+info@goldenairwaycourier.com
 +44 7543878790
     `;
 
@@ -223,7 +223,7 @@ Thank you for choosing Golden Airways Courier.
 
 Sincerely,
 Golden Airways Courier Support Team
-support@yourcompany.com
+info@goldenairwaycourier.com
 +44 7543878790
     `;
 
