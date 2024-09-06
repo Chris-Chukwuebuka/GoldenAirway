@@ -1,14 +1,17 @@
 const nodemailer = require("nodemailer");
 
-const sendEmail = (to, subject, text) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+// Create a transporter using Zoho SMTP settings
+const transporter = nodemailer.createTransport({
+  host: "smtp.zoho.com",
+  port: 465, // Use 587 for TLS if needed
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Your Zoho password or app-specific password
+  },
+});
 
+const sendEmail = (to, subject, text) => {
   const mailOptions = {
     from: `"Golden Airways Courier" <${process.env.EMAIL_USER}>`,
     to,
@@ -27,17 +30,6 @@ const sendEmail = (to, subject, text) => {
 };
 
 const sendVerificationEmail = (email, token) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.zoho.com",
-    port: 465, // Use 587 for TLS if needed
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // Your Zoho password or app-specific password
-    },
-  });
- 
-
   const mailOptions = {
     from: `"Golden Airways Courier" <${process.env.EMAIL_USER}>`,
     to: email,
