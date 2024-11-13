@@ -19,6 +19,7 @@ const createParcel = async (req, res) => {
       receiversName,
       receiversAddress,
       receiversNumber,
+      timestamp,
     } = req.body;
 
     // Check if all required fields are present
@@ -35,7 +36,8 @@ const createParcel = async (req, res) => {
       !sendersEmail ||
       !receiversName ||
       !receiversAddress ||
-      !receiversNumber 
+      !receiversNumber ||
+      !timestamp
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -55,7 +57,7 @@ const createParcel = async (req, res) => {
         location,
         time: "00:00",
         paymentMethod: "input the payment methodand means of payment", 
-        timestamp: Date.now(),
+        timestamp: timestamp || Date.now(), // Use provided timestamp or fallback to current time      
       },
       sendersName,
       sendersAddress,
@@ -105,20 +107,26 @@ info@goldenairwaycourier.com
 const updateParcelStatusById = async (req, res) => {
   try {
     const { _id } = req.params;
-    const { status, location, time, paymentMethod } = req.body;
+    const { status, location, paymentMethod, timestamp } = req.body;
 
-    // Check if all required fields are present
-    if (!status || !location || !time || !paymentMethod) {
-      return res.status(400).json({ error: "Status, location, time, and payment method fields are required" });
+    // Check if all required fields are present (excluding `timestamp` which is optional)
+    if (!status || !location || !paymentMethod || !timestamp) {
+      return res.status(400).json({ error: "Status, location, and payment method fields are required" });
     }
+
+    // Use provided `timestamp` or default to current date
+    const newStatus = {
+      status,
+      location,
+      paymentMethod,
+      timestamp: timestamp || Date.now(), // Use provided `timestamp` or current date
+    };
 
     // Update the parcel's status
     const updatedParcel = await Parcel.findByIdAndUpdate(
       _id,
       {
-        $push: {
-          status: { status, location, time, paymentMethod, timestamp: Date.now() },
-        },
+        $push: { status: newStatus },
         updatedAt: Date.now(),
       },
       { new: true }
@@ -138,7 +146,7 @@ The status of your shipment has been updated. Below are the details:
 Tracking Number: ${updatedParcel.trackingNumber}
 New Status: ${status}
 Current Location: ${location}
-Updated Time: ${time}
+Updated Timestamp: ${new Date(newStatus.timestamp).toLocaleString()}
 Expected Payment Method: ${paymentMethod}
 
 Thank you for choosing Golden Airways Courier.
@@ -158,6 +166,7 @@ info@goldenairwaycourier.com
   }
 };
 
+
 // Get parcel status by tracking number
 const getParcelStatus = async (req, res) => {
   try {
@@ -169,6 +178,9 @@ const getParcelStatus = async (req, res) => {
       return res.status(404).json({ error: "Parcel not found" });
     }
 
+    // Access the latest status update (the last entry in the status array)
+    const latestStatus = parcel.status[parcel.status.length - 1];
+
     // Send the status update email
     await sendParcelStatusEmail(
       parcel.sendersName,
@@ -176,14 +188,14 @@ const getParcelStatus = async (req, res) => {
       parcel.sendersAddress,
       parcel.email,
       parcel.trackingNumber,
-      parcel.status.status,
-      parcel.status.location,
-      parcel.status.time
+      latestStatus.status,
+      latestStatus.location,
+      latestStatus.timestamp
     );
 
     res.status(200).json({
       trackingNumber: parcel.trackingNumber,
-      status: parcel.status,
+      status: latestStatus, // Return the most recent status
     });
   } catch (error) {
     console.error("Error retrieving parcel status:", error);
@@ -200,7 +212,7 @@ const sendParcelStatusEmail = async (
   trackingNumber,
   status,
   location,
-  time
+  timestamp
 ) => {
   try {
     const subject = "Your Shipment Status Update";
@@ -215,7 +227,7 @@ Sender's Email: ${sendersEmail}
 Tracking Number: ${trackingNumber}
 Current Status: ${status}
 Location: ${location}
-Time: ${time}
+Timestamp: ${new Date(timestamp).toLocaleString()}  // Optional: format timestamp nicely
 
 You can continue to monitor the status of your shipment on our website.
 
@@ -234,6 +246,7 @@ info@goldenairwaycourier.com
     console.error("Error sending status email:", error);
   }
 };
+
 
 // Get all parcels
 const getAllParcels = async (req, res) => {
