@@ -106,11 +106,13 @@ info@goldenairwaycourier.com
 // Update parcel status by ID
 const updateParcelStatusById = async (req, res) => {
   try {
+    console.log("Updating parcel status");
     const { _id } = req.params;
     const { status, location, paymentMethod, timestamp } = req.body;
 
     // Check if all required fields are present (excluding `timestamp` which is optional)
     if (!status || !location || !paymentMethod || !timestamp) {
+      console.log("Missing required fields");
       return res.status(400).json({ error: "Status, location, and payment method fields are required" });
     }
 
@@ -121,6 +123,8 @@ const updateParcelStatusById = async (req, res) => {
       paymentMethod,
       timestamp: timestamp || Date.now(), // Use provided `timestamp` or current date
     };
+
+    console.log(`Updating parcel ${_id} with status ${status}, location ${location}, payment method ${paymentMethod}, and timestamp ${newStatus.timestamp}`);
 
     // Update the parcel's status
     const updatedParcel = await Parcel.findByIdAndUpdate(
@@ -133,8 +137,11 @@ const updateParcelStatusById = async (req, res) => {
     );
 
     if (!updatedParcel) {
+      console.log("Parcel not found");
       return res.status(404).json({ error: "Parcel not found" });
     }
+
+    console.log(`Sending update notification email to ${updatedParcel.email}`);
 
     // Send an update notification email
     const subject = "Update on Your Golden Airways Courier Shipment";
@@ -159,6 +166,7 @@ info@goldenairwaycourier.com
 
     await sendEmail(updatedParcel.email, subject, text);
 
+    console.log("Update notification email sent");
     res.status(200).json({ message: "Parcel status updated", updatedParcel });
   } catch (error) {
     console.error("Error updating parcel status:", error);
