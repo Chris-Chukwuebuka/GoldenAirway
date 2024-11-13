@@ -108,10 +108,10 @@ const updateParcelStatusById = async (req, res) => {
   try {
     console.log("Updating parcel status");
     const { _id } = req.params;
-    const { status, location, paymentMethod, timestamp } = req.body;
+    const { status, location, paymentMethod,timestamp  } = req.body;
 
     // Check if all required fields are present (excluding `timestamp` which is optional)
-    if (!status || !location || !paymentMethod || !timestamp) {
+    if (!status || !location || !paymentMethod || !timestamp ) {
       console.log("Missing required fields");
       return res.status(400).json({ error: "Status, location, and payment method fields are required" });
     }
@@ -153,7 +153,7 @@ The status of your shipment has been updated. Below are the details:
 Tracking Number: ${updatedParcel.trackingNumber}
 New Status: ${status}
 Current Location: ${location}
-Updated Timestamp: ${new Date(newStatus.timestamp).toLocaleString()}
+Updated Time: ${new Date(newStatus.timestamp).toLocaleString()}
 Expected Payment Method: ${paymentMethod}
 
 Thank you for choosing Golden Airways Courier.
@@ -235,7 +235,7 @@ Sender's Email: ${sendersEmail}
 Tracking Number: ${trackingNumber}
 Current Status: ${status}
 Location: ${location}
-Timestamp: ${new Date(timestamp).toLocaleString()}  // Optional: format timestamp nicely
+Time: ${new Date(timestamp).toLocaleString()}  
 
 You can continue to monitor the status of your shipment on our website.
 
