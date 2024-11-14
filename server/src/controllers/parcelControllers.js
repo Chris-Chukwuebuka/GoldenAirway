@@ -229,6 +229,10 @@ const sendParcelStatusEmail = async (
   timestamp
 ) => {
   try {
+    // Debugging logs to ensure values are correct
+    console.log("Status Report (Debug):", statusReport);
+    console.log("Location (Debug):", location);
+
     const subject = "Your Shipment Status Update";
     const text = `
 Dear ${sendersName},
@@ -242,7 +246,7 @@ Tracking Number: ${trackingNumber}
 Current Status: ${status}
 Status Report: ${statusReport}
 Location: ${location}
-Time: ${new Date(timestamp).toLocaleString()}  
+Time: ${new Date(timestamp).toLocaleString()}
 
 You can continue to monitor the status of your shipment on our website.
 
@@ -252,7 +256,7 @@ Sincerely,
 Golden Airways Courier Support Team
 info@goldenairwaycourier.com
 +44 7543878790
-    `;
+    `.trim(); // Trims whitespace for a cleaner message
 
     await sendEmail(email, subject, text);
 
@@ -261,6 +265,7 @@ info@goldenairwaycourier.com
     console.error("Error sending status email:", error);
   }
 };
+
 
 
 // Get all parcels
