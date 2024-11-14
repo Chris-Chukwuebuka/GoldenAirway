@@ -13,6 +13,7 @@ const parcelSchema = new mongoose.Schema({
   status: [
     {
       status: String,
+      statusReport: String,
       timestamp: { type: Date, default: Date.now },
       location: String,
       time: String,

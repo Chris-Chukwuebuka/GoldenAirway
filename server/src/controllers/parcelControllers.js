@@ -54,9 +54,10 @@ const createParcel = async (req, res) => {
       dimensions: { length, width, height },
       status: {
         status: "Shipment Created",
+        statusReport: "Shipment has been created, you will be notified on the status of your shipment",
         location,
         time: "00:00",
-        paymentMethod: "input the payment methodand means of payment", 
+        paymentMethod: "input the payment method and means of payment", 
         timestamp: timestamp || Date.now(), // Use provided timestamp or fallback to current time      
       },
       sendersName,
@@ -108,23 +109,24 @@ const updateParcelStatusById = async (req, res) => {
   try {
     console.log("Updating parcel status");
     const { _id } = req.params;
-    const { status, location, paymentMethod,timestamp  } = req.body;
+    const { status, location, paymentMethod, timestamp, statusReport } = req.body;
 
-    // Check if all required fields are present (excluding `timestamp` which is optional)
-    if (!status || !location || !paymentMethod || !timestamp ) {
+    // Check if required fields are present
+    if (!status || !location || !paymentMethod || !statusReport) {
       console.log("Missing required fields");
-      return res.status(400).json({ error: "Status, location, and payment method fields are required" });
+      return res.status(400).json({ error: "Status, location, payment method, and status report fields are required" });
     }
 
-    // Use provided `timestamp` or default to current date
+    // Create new status update object
     const newStatus = {
       status,
+      statusReport,
       location,
       paymentMethod,
-      timestamp: timestamp || Date.now(), // Use provided `timestamp` or current date
+      timestamp: timestamp || Date.now(), // Use provided `timestamp` or fallback to current date
     };
 
-    console.log(`Updating parcel ${_id} with status ${status}, location ${location}, payment method ${paymentMethod}, and timestamp ${newStatus.timestamp}`);
+    console.log(`Updating parcel ${_id} with status ${status}, status report ${statusReport}, location ${location}, payment method ${paymentMethod}, and timestamp ${newStatus.timestamp}`);
 
     // Update the parcel's status
     const updatedParcel = await Parcel.findByIdAndUpdate(
@@ -152,6 +154,7 @@ The status of your shipment has been updated. Below are the details:
 
 Tracking Number: ${updatedParcel.trackingNumber}
 New Status: ${status}
+New Status Report: ${statusReport}
 Current Location: ${location}
 Updated Time: ${new Date(newStatus.timestamp).toLocaleString()}
 Expected Payment Method: ${paymentMethod}
@@ -173,6 +176,7 @@ info@goldenairwaycourier.com
     res.status(500).json({ error: "Failed to update parcel status" });
   }
 };
+
 
 
 // Get parcel status by tracking number
@@ -198,6 +202,7 @@ const getParcelStatus = async (req, res) => {
       parcel.trackingNumber,
       latestStatus.status,
       latestStatus.location,
+      latestStatus.statusReport,
       latestStatus.timestamp
     );
 
@@ -219,6 +224,7 @@ const sendParcelStatusEmail = async (
   email,
   trackingNumber,
   status,
+  statusReport,
   location,
   timestamp
 ) => {
@@ -234,6 +240,7 @@ Sender's Address: ${sendersAddress}
 Sender's Email: ${sendersEmail}
 Tracking Number: ${trackingNumber}
 Current Status: ${status}
+Status Report: ${statusReport}
 Location: ${location}
 Time: ${new Date(timestamp).toLocaleString()}  
 
